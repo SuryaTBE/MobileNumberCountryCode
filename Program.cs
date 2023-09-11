@@ -11,8 +11,8 @@ public class CountryCode
     public static void Main(string[] args)
     {
         int code = 0;
-        List<PhoneNumberUtil> countryCodes= new List<PhoneNumberUtil>();
-        PhoneNumberUtil phone=PhoneNumberUtil.GetInstance();
+        List<PhoneNumberUtil> countryCodes= new List<PhoneNumberUtil>();//for storing List of Countries and its code
+        PhoneNumberUtil phone=PhoneNumberUtil.GetInstance();//Retrives international phone number details
         List<MobileCountryCode> mobile = new List<MobileCountryCode>();
 
         foreach (var regionCode in phone.GetSupportedRegions())
@@ -29,7 +29,13 @@ public class CountryCode
         Console.WriteLine("To be stored as:" + MobileNumberTrimmed1);
         Console.WriteLine("Enter Your Country Code:");
         string countryCode = Console.ReadLine();
-        bool isValidNumber = IsPhoneNumberValid(mobileNumber,countryCode);
+        string country = String.Concat(countryCode.Where(c =>!Char.IsWhiteSpace(c)));
+        if(country.Contains('+'))
+        {
+            country = country.Remove(0, 1);
+        }
+        Console.WriteLine("Country Code:" + country);
+        bool isValidNumber = IsPhoneNumberValid(MobileNumberTrimmed1, countryCode);
         Console.WriteLine(isValidNumber);
         if (isValidNumber)
         {
@@ -46,10 +52,13 @@ public class CountryCode
     {
         PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.GetInstance();
         PhoneNumber number = null;
+        string cCode = null;
 
         try
         {
-            number = phoneNumberUtil.Parse(phoneNumber, countryCode);
+            string isoCodeFormat = phoneNumberUtil.GetRegionCodeForCountryCode(int.Parse(countryCode));
+            cCode = isoCodeFormat;
+            number = phoneNumberUtil.Parse(phoneNumber, isoCodeFormat);
         }
         catch (Exception e)
         {
@@ -57,7 +66,7 @@ public class CountryCode
             return false;
         }
 
-        if (!phoneNumberUtil.IsValidNumberForRegion(number, countryCode))
+        if (!phoneNumberUtil.IsValidNumberForRegion(number, cCode))
         {
             // Number is not valid for the specified country
             return false;
